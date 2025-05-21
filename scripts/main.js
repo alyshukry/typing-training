@@ -48,3 +48,5 @@ function welcomeAnimation() {
         keyPressSequence([...row4Keys].reverse(), 75)
     }, row0Keys.length * 75)
 }
+
+document.querySelector("#text-area").style.width = "calc(" + document.querySelector("#keyboard").offsetWidth + "px - 1.5rem)";

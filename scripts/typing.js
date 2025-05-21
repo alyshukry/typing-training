@@ -1,13 +1,17 @@
+import { spawnConfetti } from "../lib/confetti.js"
+
 let text = ""
 const textArea = document.querySelector("#text-area")
 
-let wordCount = 1
+const wordCount = 25
 let characters
-fetch("../assets/words.txt")
-    .then(response => response.text())
+fetch("../assets/pseudo-words.json")
+    .then(response => response.json())
     .then((words) => {
-        let wordsArray = words.split('\n').filter(word => word.trim() !== '')
-        text = wordsArray.sort(() => Math.random() - 0.5).slice(0, wordCount).join(' ')
+        // Adds random amount of words to text
+        const wordsArray = Array.isArray(words) ? words : Object.values(words)
+        const textWords = Array.from({ length: wordCount }, () => wordsArray[Math.floor(Math.random() * wordsArray.length)])
+        text = textWords.join(' ')
     })
     .then(() => {
         // Wait for text to be loaded
@@ -24,11 +28,19 @@ let startTime
 let textOffset = -1 // -1 to make it start going up only after second line
 document.addEventListener("keydown", keyPressed) // Detect key presses
 
+let statsInterval
 function textFinished() { // Runs when user types out all of the text
-    console.log(`done, ${((1 - mistakes / characters.length) * 100).toFixed(2)}% accuracy, wpm: ${(wordCount / ((Date.now() - startTime) / 60000)).toFixed(2)}`)
     document.removeEventListener("keydown", keyPressed) // Remove listener to avoid errors
+
+    // Stop updating the stats
+    updateStats() // One last update
+    clearInterval(statsInterval)
+    
+    spawnConfetti({x: "max", y: "center", velXRange: [-10, -1], velYRange: [-10, -1]})
+    spawnConfetti({x: 0, y: "center", velXRange: [1, 10], velYRange: [-10, -1]})
 }
 
+let started = 0
 function keyPressed(event) {
     const userInput = event.key
     // Run this function only if one of the typeable letters is pressed
@@ -38,7 +50,7 @@ function keyPressed(event) {
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
         "`", "~", ".", ",", "!", "?", "'", '"', ";", ":", " ", "-", "_", "(", ")", "[", "]", "{", "}", "\\"
     ].includes(userInput)) return
-
+    
     // Current character (the one that's supposed to get typed next)
     const currentCharacter = characters[currentCharacterIndex]
     
@@ -61,13 +73,13 @@ function keyPressed(event) {
         currentCharacter.classList.add("correct")
         currentCharacter.classList.remove("incorrect")
         currentCharacterIndex++
-
+        
         // Checks if current character was last character
         if (currentCharacterIndex === characters.length) {
             textFinished()
             return
         }
-
+        
         // Add the current class to the current letter (after 'currentCharacterIndex' has been incremented)
         characters.forEach((char) => {char.classList.remove("current")})
         characters[currentCharacterIndex].classList.add("current")
@@ -75,10 +87,40 @@ function keyPressed(event) {
     }   else { // User typed in the wrong character
             // Add to their mistakes unless it's the same character they're on
             if (!currentCharacter.classList.contains("incorrect")) mistakes++
-
+            
             currentCharacter.classList.add("incorrect")
             currentCharacter.classList.remove("correct")
     }
+
+    // Start getting user stats
+    if (started === 0) {
+        statsInterval = setInterval(updateStats, 250)
+    }
+    
+    // User started the test
+    started = 1
 }
 
+let accuracyStat
+let wpmStat
+function updateStats() {
+    const siblings = document.querySelectorAll(".char") // Group of sibling elements
+    const element = document.querySelector(".char.current")
+    const currentIndex = Array.from(siblings).indexOf(element)
+    
+    accuracyStat = ((1 - mistakes / (currentIndex + 1)) * 100).toFixed(2)
+
+    // Calculate accuracyStat
+    document.querySelector("#accuracy").innerHTML = `${accuracyStat}%`
+    
+    // Calculate wpmStat based on spaces (words) before current position
+    const spacesBeforeCurrent = Array.from(siblings)
+        .slice(0, currentIndex)
+        .filter(span => span.textContent === ' ').length + 1
+    const timeElapsed = (Date.now() - startTime) / 60000 // minutes
+    wpmStat = timeElapsed > 0 ? (spacesBeforeCurrent / timeElapsed).toFixed(2) : '0.00'
+    document.querySelector("#wpm").innerHTML = `${wpmStat} wpm`
+}
+
+// Add 'space' class to space spans
 Array.from(document.querySelectorAll('.char')).filter(span => span.textContent === ' ').forEach(span => span.classList.add("space"))

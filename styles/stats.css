@@ -1,0 +1,13 @@
+#stats {
+    display: flex;
+    justify-content: space-between;
+
+    font-family: monospace;
+    font-size: 1rem;
+
+    width: 95%;
+
+    margin: 1rem 0;
+
+    color: var(--text-color)
+}
