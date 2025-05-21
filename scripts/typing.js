@@ -1,12 +1,22 @@
-let text = "Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro Hello bro "
-const wordCount = text.trim().split(/\s+/).length
+let text = ""
 const textArea = document.querySelector("#text-area")
 
-// Split each character into a span
-textArea.innerHTML = text.split("").map(letter => `<span class="char">${letter}</span>`).join("")
-
-const characters = document.querySelectorAll(".char")
-characters[0].classList.add("current")
+let wordCount = 1
+let characters
+fetch("../assets/words.txt")
+    .then(response => response.text())
+    .then((words) => {
+        let wordsArray = words.split('\n').filter(word => word.trim() !== '')
+        text = wordsArray.sort(() => Math.random() - 0.5).slice(0, wordCount).join(' ')
+    })
+    .then(() => {
+        // Wait for text to be loaded
+        // Split each character into a span
+        textArea.innerHTML = text.split("").map(char => `<span class="char">${char}</span>`).join("")
+        // Define the spans
+        characters = document.querySelectorAll(".char")
+        characters[0].classList.add("current")
+    })
 
 let currentCharacterIndex = 0
 let mistakes = 0
