@@ -1,9 +1,8 @@
-#text-area {
+#text-display {
     width: calc(100% - 1.5rem);
     height: 4.5rem;
     
     padding: .75rem;
-    margin: 2.5rem 0;
 
     font-family: monospace;
     font-size: 1.25rem;

@@ -1,7 +1,7 @@
 import { spawnConfetti } from "../lib/confetti.js"
 
 let text = ""
-const textArea = document.querySelector("#text-area")
+const textDisplay = document.querySelector("#text-display")
 
 const wordCount = 25
 let characters
@@ -16,7 +16,7 @@ fetch("../assets/pseudo-words.json")
     .then(() => {
         // Wait for text to be loaded
         // Split each character into a span
-        textArea.innerHTML = text.split("").map(char => `<span class="char">${char}</span>`).join("")
+        textDisplay.innerHTML = text.split("").map(char => `<span class="char">${char}</span>`).join("")
         // Define the spans
         characters = document.querySelectorAll(".char")
         characters[0].classList.add("current")

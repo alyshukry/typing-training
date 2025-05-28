@@ -1,5 +1,6 @@
 @import url(keyboard.css);
-@import url(text-area.css);
+@import url(text-display.css);
+@import url(text-input.css);
 @import url(stats.css);
 
 :root { /*  Default light mode colors: */

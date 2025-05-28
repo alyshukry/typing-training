@@ -48,4 +48,4 @@ for i in range(10000):  # Generate 10000 words
 
 # Write to file
 with open("assets/pseudo-words.json", "w") as substrings:
-    json.dump(word_dict, substrings, indent=4)
+    json.dump(word_dict, substrings, indent = 4)

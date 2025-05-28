@@ -1,0 +1,22 @@
+#text-input {
+    width: calc(100% - 1.5rem);
+    height: 1.5rem;
+    
+    padding: .75rem;
+    margin: 1.5rem 0;
+
+    font-family: monospace;
+    font-size: 1.25rem;
+
+    overflow-y: hidden;
+
+    line-height: 1.5rem;
+
+    white-space: normal;
+    word-wrap: break-word;
+
+    background-color: var(--key-color);
+    border: 2px solid var(--border-color);
+    border-radius: .5rem;
+
+}

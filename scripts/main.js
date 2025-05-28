@@ -7,7 +7,7 @@ const row4Keys = ["controlleft", "altleft", "space", "altright", "controlright"]
 // Pressing and unpressing logic
 document.addEventListener("keydown", function(event) {
     if (document.querySelector(`#${event.code.toLowerCase()}.key`)) document.querySelector(`#${event.code.toLowerCase()}.key`).classList.add("active")
-    })
+})
 document.addEventListener("keyup", function(event) {
     if (document.querySelector(`#${event.code.toLowerCase()}.key`)) document.querySelector(`#${event.code.toLowerCase()}.key`).classList.remove("active")
 })
@@ -18,6 +18,41 @@ window.addEventListener("blur", () => { // Unpresses all keys if user unfocuses 
     })
 })
 
+// Convert Shiftable characters
+const shiftMapping = {
+    'backquote': ['`', '~'],
+    'digit1': ['1', '!'],
+    'digit2': ['2', '@'],
+    'digit3': ['3', '#'],
+    'digit4': ['4', '$'],
+    'digit5': ['5', '%'],
+    'digit6': ['6', '^'],
+    'digit7': ['7', '&'],
+    'digit8': ['8', '*'],
+    'digit9': ['9', '('],
+    'digit0': ['0', ')'],
+    'minus': ['-', '_'],
+    'equal': ['=', '+'],
+    'bracketleft': ['[', '{'],
+    'bracketright': [']', '}'],
+    'backslash': ['\\', '|'],
+    'semicolon': [';', ':'],
+    'quote': ["'", '"'],
+    'comma': [',', '<'],
+    'period': ['.', '>'],
+    'slash': ['/', '?']
+}
+
+function updateKeys(isShifted) {
+    Object.entries(shiftMapping).forEach(([key, [normal, shifted]]) => {
+        document.querySelector(`#${key}.key`).innerHTML = isShifted ? shifted : normal
+    })
+}
+
+document.addEventListener("keydown", e => e.key === "Shift" && updateKeys(true))
+document.addEventListener("keyup", e => e.key === "Shift" && updateKeys(false))
+
+// Key press animation sequence
 function keyPressSequence(keys, interval) {
     keys.forEach((key, index) => {
         setTimeout(() => {
@@ -49,4 +84,4 @@ function welcomeAnimation() {
     }, row0Keys.length * 75)
 }
 
-document.querySelector("#text-area").style.width = "calc(" + document.querySelector("#keyboard").offsetWidth + "px - 1.5rem)";
+document.querySelector("#text-display").style.width = "calc(" + document.querySelector("#keyboard").offsetWidth + "px - 1.5rem)";
