@@ -1,7 +1,10 @@
 import { spawnConfetti } from "../lib/confetti.js"
 
 let text = ""
+let textLength
 const textDisplay = document.querySelector("#text-display")
+const textInput = document.querySelector("#text-input")
+const inputMirror = document.querySelector("#input-mirror")
 
 const wordCount = 25
 let characters
@@ -20,18 +23,17 @@ fetch("../assets/pseudo-words.json")
         // Define the spans
         characters = document.querySelectorAll(".char")
         characters[0].classList.add("current")
+
+        textLength = text.length
     })
-
-let currentCharacterIndex = 0
-let mistakes = 0
-let startTime
-let textOffset = -1 // -1 to make it start going up only after second line
-document.addEventListener("keydown", keyPressed) // Detect key presses
-
+    
 let statsInterval
+let textDone = 0
 function textFinished() { // Runs when user types out all of the text
-    document.removeEventListener("keydown", keyPressed) // Remove listener to avoid errors
+    textDone = 1
 
+    document.removeEventListener("keydown", keyPressed) // Remove listener to avoid errors
+    
     // Stop updating the stats
     updateStats() // One last update
     clearInterval(statsInterval)
@@ -39,88 +41,92 @@ function textFinished() { // Runs when user types out all of the text
     spawnConfetti({x: "max", y: "center", velXRange: [-10, -1], velYRange: [-10, -1]})
     spawnConfetti({x: 0, y: "center", velXRange: [1, 10], velYRange: [-10, -1]})
 }
-
+    
 let started = 0
-function keyPressed(event) {
-    const userInput = event.key
-    // Run this function only if one of the typeable letters is pressed
-    if (![
-        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-        "`", "~", ".", ",", "!", "?", "'", '"', ";", ":", " ", "-", "_", "(", ")", "[", "]", "{", "}", "\\"
-    ].includes(userInput)) return
-    
-    // Current character (the one that's supposed to get typed next)
-    const currentCharacter = characters[currentCharacterIndex]
-    
-    // Current row offset to move the entire text upwards when a line is finished
-    const currentRow = characters[currentCharacterIndex].offsetTop
-    let nextCharRow // Row below 
-    if (characters[currentCharacterIndex + 1]) {nextCharRow = characters[currentCharacterIndex + 1].offsetTop} // If statement to prevent error when on the last character of the text
-    if (currentRow != nextCharRow) { // If both values aren't equal then user has moved onto another line
-        textOffset += 1
-        // Move all the characters up one line
-        document.querySelectorAll(".char").forEach((char) => {
-            char.style.top = `-${textOffset * 1.5}rem`
-        })
-    }
-    
-    // Start the timer
-    if (currentCharacterIndex === 0) startTime = Date.now()
+let currentIndex = 0
+let typedBefore = 0
+let mistakes = 0
+let startTime
+let textOffset = -1 // -1 to make it start going up only after second line
+let sameMistake = 0 // To not penalise every single wrong character
 
-    if (userInput === currentCharacter.innerHTML) { // User typed in the correct character
-        currentCharacter.classList.add("correct")
-        currentCharacter.classList.remove("incorrect")
-        currentCharacterIndex++
-        
-        // Checks if current character was last character
-        if (currentCharacterIndex === characters.length) {
-            textFinished()
-            return
+document.addEventListener("input", keyPressed) // Detect key presses
+
+function keyPressed(event) {
+    // Stop detecting when user finishes
+    if (textDone === 1) return
+
+    if (text.startsWith(textInput.value)) { // Check if input is the same as the beginning of the text
+        sameMistake = 0 // Reset to indicate that mistake has been corrected and mistakes can count again
+
+        // Gets the index of the character the user should be typing
+        currentIndex = textInput.value.length + typedBefore - 1
+        // Adds the .current class to the current character
+        const chars = Array.from(document.querySelectorAll("#text-display .char"))
+        document.querySelectorAll("#text-display .char").forEach((char) => char.classList.remove("current"))
+        if (chars[currentIndex + 1]) chars[currentIndex + 1].classList.add("current") // If statement prevents error at the end of the text
+
+        // "|| 0" prevents error in console at the end of the text
+        const currentRow = document.querySelector(".current.char")?.offsetTop || 0
+        const nextRow = document.querySelector(".current.char")?.nextElementSibling?.offsetTop || 0
+        // Move text up
+        if (currentRow < nextRow) {
+            textOffset += 1
+            // Move all the characters up one line
+            document.querySelectorAll(".char").forEach((char) => {
+                char.style.top = `-${textOffset * 1.5}rem`
+            })
         }
         
-        // Add the current class to the current letter (after 'currentCharacterIndex' has been incremented)
-        characters.forEach((char) => {char.classList.remove("current")})
-        characters[currentCharacterIndex].classList.add("current")
+        if (event.data === " ") { // Check if at the end of the word
+            typedBefore += textInput.value.length // Gets added to the "currentIndex", this keeps track of all the previous characters written
 
-    }   else { // User typed in the wrong character
-            // Add to their mistakes unless it's the same character they're on
-            if (!currentCharacter.classList.contains("incorrect")) mistakes++
-            
-            currentCharacter.classList.add("incorrect")
-            currentCharacter.classList.remove("correct")
+            text = text.slice(textInput.value.length) // Remove the first part of the text so the next inputs can match
+            textInput.value = "" // Clear the input
+        }
+    }
+    else if (sameMistake === 0) {
+        sameMistake = 1
+        mistakes++
     }
 
-    // Start getting user stats
-    if (started === 0) {
-        statsInterval = setInterval(updateStats, 250)
-    }
-    
+    // Update text input mirror
+    inputMirror.innerHTML = textInput.value.split('').map(char => 
+        `<span class="char">${char}</span>`
+    ).join('')
+
+    // Check if character is correct or not to add class
+    const chars = Array.from(document.querySelectorAll("#input-mirror .char"))
+    chars.forEach((char, i) => {
+        if (char.textContent === text[i]) {
+            if (!char.parentElement.querySelector('.incorrect')) char.classList.add("correct") // Check if there was an incorrect character before
+            else char.classList.add("incorrect") // If there is then this char is definitely incorrect
+
+        }   else char.classList.add("incorrect")
+    })
+
+    // User finished text
+    if (textLength === currentIndex + 1) textFinished()
+
     // User started the test
+    if (started === 0) startTime = Date.now()
     started = 1
 }
 
 let accuracyStat
 let wpmStat
 function updateStats() {
-    const siblings = document.querySelectorAll(".char") // Group of sibling elements
-    const element = document.querySelector(".char.current")
-    const currentIndex = Array.from(siblings).indexOf(element)
+    const characters = document.querySelectorAll("#text-display .char") // Group of sibling characters
     
-    accuracyStat = ((1 - mistakes / (currentIndex + 1)) * 100).toFixed(2)
-
     // Calculate accuracyStat
+    accuracyStat = ((1 - mistakes / (textLength)) * 100).toFixed(2)
     document.querySelector("#accuracy").innerHTML = `${accuracyStat}%`
     
-    // Calculate wpmStat based on spaces (words) before current position
-    const spacesBeforeCurrent = Array.from(siblings)
-        .slice(0, currentIndex)
+    // Calculate "wpmStat" based on spaces (words) before current position
+    const spacesBeforeCurrent = Array.from(characters)
+        .slice(0, textLength - 1)
         .filter(span => span.textContent === ' ').length + 1
     const timeElapsed = (Date.now() - startTime) / 60000 // minutes
-    wpmStat = timeElapsed > 0 ? (spacesBeforeCurrent / timeElapsed).toFixed(2) : '0.00'
+    wpmStat = timeElapsed > 0 ? (spacesBeforeCurrent / timeElapsed).toFixed(2) : '000.00'
     document.querySelector("#wpm").innerHTML = `${wpmStat} wpm`
 }
-
-// Add 'space' class to space spans
-Array.from(document.querySelectorAll('.char')).filter(span => span.textContent === ' ').forEach(span => span.classList.add("space"))

@@ -44,3 +44,29 @@ body {
     flex-direction: column;
     align-items: center;
 }
+
+.char {
+    position: relative;
+
+    color: var(--text-color);
+
+    top: 0rem;
+    transition: top .1s;
+}
+
+.char.correct {
+    color: var(--text-color);
+}
+.char.incorrect {
+    color: rgb(255, 100, 100);
+    background-color: rgba(255, 0, 0, .15);
+}
+
+.char.current:not(:first-of-type) { /* Adds marker for which letter you're currently on */
+    content: "";
+
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(255, 255, 255, .3);
+}
