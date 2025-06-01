@@ -1,3 +1,5 @@
+if (window.innerWidth <= 768) document.body.innerHTML = "<p style='color:var(--text-color);'>Sorry! This website is only available on desktop devices.</p>";
+
 const row0Keys = ["backquote", "digit1", "digit2", "digit3", "digit4", "digit5", "digit6", "digit7", "digit8", "digit9", "digit0", "minus", "equal", "backspace"]
 const row1Keys = ["tab", "keyq", "keyw", "keye", "keyr", "keyt", "keyy", "keyu", "keyi", "keyo", "keyp", "bracketleft", "bracketright", "backslash"]
 const row2Keys = ["capslock", "keya", "keys", "keyd", "keyf", "keyg", "keyh", "keyj", "keyk", "keyl", "semicolon", "quote", "enter"]
@@ -43,23 +45,25 @@ const shiftMapping = {
     'slash': ['/', '?']
 }
 
-function updateKeys(isShifted) {
+function updateShiftableKeys(isShifted) {
     Object.entries(shiftMapping).forEach(([key, [normal, shifted]]) => {
         document.querySelector(`#${key}.key`).innerHTML = isShifted ? shifted : normal
     })
 }
 
-document.addEventListener("keydown", e => e.key === "Shift" && updateKeys(true))
-document.addEventListener("keyup", e => e.key === "Shift" && updateKeys(false))
+document.addEventListener("keydown", e => e.key === "Shift" && updateShiftableKeys(true))
+document.addEventListener("keyup", e => e.key === "Shift" && updateShiftableKeys(false))
 
 // Key press animation sequence
 function keyPressSequence(keys, interval) {
     keys.forEach((key, index) => {
         setTimeout(() => {
             document.querySelector(`#${key}`).classList.add("active")
+            updateShiftableKeys(!!document.querySelector("#shiftleft.key.active") || document.querySelector("#shiftright.key.active")) // Updates shiftable keys if shift was pressed
 
             setTimeout(() => {
                 document.querySelector(`#${key}`).classList.remove("active")
+                updateShiftableKeys(!!document.querySelector("#shiftleft.key.active") || document.querySelector("#shiftright.key.active")) // Updates shiftable keys if shift was pressed
             }, interval)
 
         }, interval * index)
@@ -68,20 +72,12 @@ function keyPressSequence(keys, interval) {
 
 // Animation for all RowKeyss
 function welcomeAnimation() {
+    keyPressSequence(["keyw", "keye", "keyl", "keyc", "keyo", "keym", "keye", "shiftleft", "digit1"], 200)
     setTimeout(() => {
-        keyPressSequence([...row0Keys], 75)
-        keyPressSequence([...row1Keys].reverse(), 75)
-        keyPressSequence([...row2Keys], 75)
-        keyPressSequence([...row3Keys].reverse(), 75)
-        keyPressSequence([...row4Keys], 75)
-    }, 0)
-    setTimeout(() => {
-        keyPressSequence([...row0Keys].reverse(), 75)
-        keyPressSequence([...row1Keys], 75)
-        keyPressSequence([...row2Keys].reverse(), 75)
-        keyPressSequence([...row3Keys], 75)
-        keyPressSequence([...row4Keys].reverse(), 75)
-    }, row0Keys.length * 75)
+        keyPressSequence(["shiftleft"], 200)
+    }, 200 * 8)
 }
 
-document.querySelector("#text-display").style.width = "calc(" + document.querySelector("#keyboard").offsetWidth + "px - 1.5rem)";
+document.querySelector("#text-display").style.width = "calc(" + document.querySelector("#keyboard").offsetWidth + "px - 1.5rem)"
+
+welcomeAnimation()

@@ -1,63 +1,78 @@
-import { spawnConfetti } from "../lib/confetti.js"
+import {spawnConfetti} from "../lib/confetti.js"
 
-let text = ""
-let textLength
 const textDisplay = document.querySelector("#text-display")
 const textInput = document.querySelector("#text-input")
 const inputMirror = document.querySelector("#input-mirror")
 
-const wordCount = 25
-let characters
-fetch("../assets/pseudo-words.json")
-    .then(response => response.json())
-    .then((words) => {
-        // Adds random amount of words to text
-        const wordsArray = Array.isArray(words) ? words : Object.values(words)
-        const textWords = Array.from({ length: wordCount }, () => wordsArray[Math.floor(Math.random() * wordsArray.length)])
-        text = textWords.join(' ')
-    })
-    .then(() => {
-        // Wait for text to be loaded
-        // Split each character into a span
-        textDisplay.innerHTML = text.split("").map(char => `<span class="char">${char}</span>`).join("")
-        // Define the spans
-        characters = document.querySelectorAll(".char")
-        characters[0].classList.add("current")
+let currentIndex = 0
+let typedBefore = 0
+let startedTest = false
+let text = ""
+let textLength
+let wordCount = localStorage.getItem("wordCount") || 2
+export function resetText() {
+    startedTest = false
+    document.addEventListener("input", keyPressed) // Detect key presses
 
-        textLength = text.length
-    })
+    // Reset
+    typedBefore = 0
+    currentIndex = 0
+    textInput.value = ""
+    inputMirror.innerHTML = ""
+
+    let characters
+    fetch("../assets/pseudo-words.json")
+        .then(response => response.json())
+        .then((words) => {
+            // Adds random amount of words to text
+            const wordsArray = Array.isArray(words) ? words : Object.values(words)
+            const textWords = Array.from({ length: wordCount }, () => wordsArray[Math.floor(Math.random() * wordsArray.length)])
+            text = textWords.join(' ')
+        })
+        .then(() => {
+            // Wait for text to be loaded
+            // Split each character into a span
+            textDisplay.innerHTML = text.split("").map(char => `<span class="char">${char}</span>`).join("")
+            // Define the spans
+            characters = document.querySelectorAll(".char")
+            characters[0].classList.add("current")
+
+            textLength = text.length
+        })
+    }   resetText()
+    window.resetText = resetText
     
 let statsInterval
-let textDone = 0
-function textFinished() { // Runs when user types out all of the text
-    textDone = 1
+let startTime
+function startTest() {
+    // Global variable to know if game is running
+    startedTest = true
 
-    document.removeEventListener("keydown", keyPressed) // Remove listener to avoid errors
+    statsInterval = setInterval(updateStats, 500)
+    startTime = Date.now()
+}
+
+function textFinished() { // Runs when user types out all of the text
+    document.removeEventListener("input", keyPressed) // Remove listener to avoid errors
     
     // Stop updating the stats
     updateStats() // One last update
     clearInterval(statsInterval)
+
+    textDisplay.innerHTML = `<div id="end-text">
+    Typed ${wordCount} words in ${(timeElapsed / 1000).toFixed(3)} seconds<br>${wpmStat} WPM (${(getPercentile(wpmStat) * 100).toFixed(2)}th percentile)<br>${accuracyStat}% accuracy
+    </div>`
     
     spawnConfetti({x: "max", y: "center", velXRange: [-10, -1], velYRange: [-10, -1]})
     spawnConfetti({x: 0, y: "center", velXRange: [1, 10], velYRange: [-10, -1]})
 }
-    
-let started = 0
-let currentIndex = 0
-let typedBefore = 0
+
 let mistakes = 0
-let startTime
 let textOffset = -1 // -1 to make it start going up only after second line
-let sameMistake = 0 // To not penalise every single wrong character
-
-document.addEventListener("input", keyPressed) // Detect key presses
-
+let sameMistake = false // To not penalise every single wrong character
 function keyPressed(event) {
-    // Stop detecting when user finishes
-    if (textDone === 1) return
-
     if (text.startsWith(textInput.value)) { // Check if input is the same as the beginning of the text
-        sameMistake = 0 // Reset to indicate that mistake has been corrected and mistakes can count again
+        sameMistake = false // Reset to indicate that mistake has been corrected and mistakes can count again
 
         // Gets the index of the character the user should be typing
         currentIndex = textInput.value.length + typedBefore - 1
@@ -85,8 +100,8 @@ function keyPressed(event) {
             textInput.value = "" // Clear the input
         }
     }
-    else if (sameMistake === 0) {
-        sameMistake = 1
+    else if (sameMistake === false) {
+        sameMistake = true
         mistakes++
     }
 
@@ -108,16 +123,16 @@ function keyPressed(event) {
     // User finished text
     if (textLength === currentIndex + 1) textFinished()
 
-    // User started the test
-    if (started === 0) startTime = Date.now()
-    started = 1
+    // User startedTest the test
+    if (startedTest === false) startTest()
 }
 
 let accuracyStat
 let wpmStat
+let timeElapsed
 function updateStats() {
-    const characters = document.querySelectorAll("#text-display .char") // Group of sibling characters
-    
+    const characters = document.querySelectorAll("#text-display .char:not(.current):not(.current ~ .char)") // Characters before current
+
     // Calculate accuracyStat
     accuracyStat = ((1 - mistakes / (textLength)) * 100).toFixed(2)
     document.querySelector("#accuracy").innerHTML = `${accuracyStat}%`
@@ -126,7 +141,23 @@ function updateStats() {
     const spacesBeforeCurrent = Array.from(characters)
         .slice(0, textLength - 1)
         .filter(span => span.textContent === ' ').length + 1
-    const timeElapsed = (Date.now() - startTime) / 60000 // minutes
-    wpmStat = timeElapsed > 0 ? (spacesBeforeCurrent / timeElapsed).toFixed(2) : '000.00'
-    document.querySelector("#wpm").innerHTML = `${wpmStat} wpm`
+    timeElapsed = (Date.now() - startTime) // minutes
+    wpmStat = timeElapsed / 60000 > 0 ? (spacesBeforeCurrent / (timeElapsed / 60000)).toFixed(2) : '000.00'
+    document.querySelector("#wpm").innerHTML = `${wpmStat} WPM`
+
+}
+
+function getPercentile(wpm) {
+  // Using the error function approximation (erf)
+  const z = (wpm - 60) / (Math.sqrt(2) * 15)
+  const t = 1 / (1 + 0.3275911 * Math.abs(z))
+  const a1 = 0.254829592
+  const a2 = -0.284496736
+  const a3 = 1.421413741
+  const a4 = -1.453152027
+  const a5 = 1.061405429
+
+  const erf = 1 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t) * Math.exp(-z * z)
+  const sign = z >= 0 ? 1 : -1
+  return 0.5 * (1 + sign * erf)
 }

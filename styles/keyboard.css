@@ -43,7 +43,9 @@
 }   .key.active {
     box-shadow: none;
 
-    transform: translate(0, 6px);   
+    background-color: var(--key-active-color);
+
+    transform: translate(0, 6px);
 
 }
 

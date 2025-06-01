@@ -44,6 +44,7 @@
     z-index: 2;
     
     /* Hide input */
+    font-size: 1px;
     color: transparent;
     background: transparent;
     
