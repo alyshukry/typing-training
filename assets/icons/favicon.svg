@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="40" viewBox="0 0 36 40">
+  <!-- Shadow -->
+  <rect
+    x="1"
+    y="1"
+    width="34"
+    height="34"
+    rx="6"
+    fill="rgb(200, 200, 200)"
+    filter="url(#shadow)"
+  />
+
+  <!-- Foreground (bordered key) -->
+  <rect
+    x="1"
+    y="1"
+    width="34"
+    height="34"
+    rx="6"
+    fill="rgb(200, 200, 200)"
+    stroke="rgb(250, 250, 250)"
+    stroke-width="2"
+  />
+
+  <!-- Text "K" -->
+  <text
+    x="50%"
+    y="50%"
+    dominant-baseline="middle"
+    text-anchor="middle"
+    font-size="22"
+    font-weight="700"
+    fill="rgb(0, 0, 0)"
+    font-family="sans-serif"
+  >T</text>
+
+  <!-- Drop Shadow Filter -->
+  <defs>
+    <filter id="shadow" x="0" y="0" width="150%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="0" flood-color="rgb(150, 150, 150)" />
+    </filter>
+  </defs>
+</svg>

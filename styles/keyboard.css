@@ -1,3 +1,52 @@
+.pinky-finger.key {
+    background-color: #ff9aa2;
+    border-color: #ffb1b8;
+    box-shadow: 0 .3rem 0 #f38f97;
+}
+.ring-finger.key {
+    background-color: #ffd1ba;
+    border-color: #ffdbc7;
+    box-shadow: 0 .3rem 0 #e8bca7;
+}
+.middle-finger.key {
+    background-color: #b5e6b3;
+    border-color: #c4edc2;
+    box-shadow: 0 .3rem 0 #9ed29c;
+}
+.leftindex-finger.key {
+    background-color: #bae1ff;
+    border-color: #c7e6ff;
+    box-shadow: 0 .3rem 0 #a3c9e8;
+}
+.rightindex-finger.key {
+    background-color: #e2f0cb;
+    border-color: #ebf5d9;
+    box-shadow: 0 .3rem 0 #cedcb9;
+}
+.thumb-finger.key {
+    background-color: #e0c1ff;
+    border-color: #e8d1ff;
+    box-shadow: 0 .3rem 0 #ccafe8;
+}
+.pinky-finger.key.active {
+    background-color: #ffc3c8;
+}
+.ring-finger.key.active {
+    background-color: #ffe4d4;
+}
+.middle-finger.key.active {
+    background-color: #d0f5ce;
+}
+.leftindex-finger.key.active {
+    background-color: #d4edff;
+}
+.rightindex-finger.key.active {
+    background-color: #f6ffe9;
+}
+.thumb-finger.key.active {
+    background-color: #f0deff;
+}
+
 #keyboard {
     display: flex;
     flex-direction: column;
@@ -25,9 +74,10 @@
 
     color: var(--icon-color);
     font-weight: 600;
+    font-size: .9rem;
 
-    width: 2rem;
-    height: 2rem;
+    width: 2.25rem;
+    height: 2.25rem;
 
     margin: 0 0 .3rem 0;
 
@@ -50,19 +100,19 @@
 }
 
 #tab.key {
-    width: 2.5rem;
+    width: 1.5rem;
 
     justify-content: left;
     padding: 0 2rem 0 .5rem;
 
 }   #capslock.key {
-    width: 5rem;
+    width: 4rem;
     
     justify-content: left;
     padding: 0 .5rem 0 .5rem;
 
 }   #shiftleft.key {
-    width: 6rem;
+    width: 5rem;
 
     justify-content: left;
     padding: 0 .5rem 0 .5rem;

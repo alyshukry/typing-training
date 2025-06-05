@@ -1,4 +1,9 @@
 import {spawnConfetti} from "../lib/confetti.js"
+import {createString, pseudoWords} from "../lib/pseudo-words.js"
+
+pseudoWords.amount = 100
+pseudoWords.punctuation = true
+pseudoWords.capitalise = false
 
 const textDisplay = document.querySelector("#text-display")
 const textInput = document.querySelector("#text-input")
@@ -9,7 +14,7 @@ let typedBefore = 0
 let startedTest = false
 let text = ""
 let textLength
-let wordCount = localStorage.getItem("wordCount") || 2
+let wordCount = localStorage.getItem("wordCount") || 20
 export function resetText() {
     startedTest = false
     document.addEventListener("input", keyPressed) // Detect key presses
@@ -20,23 +25,14 @@ export function resetText() {
     textInput.value = ""
     inputMirror.innerHTML = ""
 
-    let characters
-    fetch("../assets/pseudo-words.json")
-        .then(response => response.json())
-        .then((words) => {
-            // Adds random amount of words to text
-            const wordsArray = Array.isArray(words) ? words : Object.values(words)
-            const textWords = Array.from({ length: wordCount }, () => wordsArray[Math.floor(Math.random() * wordsArray.length)])
-            text = textWords.join(' ')
-        })
-        .then(() => {
-            // Wait for text to be loaded
+    createString()
+        .then((s) => {
+            text = s; // Store the generated string for later use
             // Split each character into a span
             textDisplay.innerHTML = text.split("").map(char => `<span class="char">${char}</span>`).join("")
             // Define the spans
-            characters = document.querySelectorAll(".char")
-            characters[0].classList.add("current")
-
+            let characters = document.querySelectorAll(".char")
+            if (characters.length > 0) characters[0].classList.add("current")
             textLength = text.length
         })
     }   resetText()
@@ -59,6 +55,7 @@ function textFinished() { // Runs when user types out all of the text
     updateStats() // One last update
     clearInterval(statsInterval)
 
+    // Post test text
     textDisplay.innerHTML = `<div id="end-text">
     Typed ${wordCount} words in ${(timeElapsed / 1000).toFixed(3)} seconds<br>${wpmStat} WPM (${(getPercentile(wpmStat) * 100).toFixed(2)}th percentile)<br>${accuracyStat}% accuracy
     </div>`
