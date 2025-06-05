@@ -1,7 +1,7 @@
 import {spawnConfetti} from "../lib/confetti.js"
 import {createString, pseudoWords} from "../lib/pseudo-words.js"
 
-pseudoWords.amount = 100
+pseudoWords.amount = 10
 pseudoWords.punctuation = true
 pseudoWords.capitalise = false
 
