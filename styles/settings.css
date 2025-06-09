@@ -1,0 +1,78 @@
+body {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+}
+
+#header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+
+    width: 55vw;
+
+    margin: 1.5rem 0;
+    padding: 0 1.5rem;
+
+    border-bottom: 1px solid var(--border-color);
+
+    font-size: 2rem;
+    font-weight: 700;
+
+    color: var(--text-color);
+}
+
+.setting {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    
+    width: 50vw;
+
+    padding: 1.5rem 0;
+    
+}   .setting:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+
+}   .setting .text {
+    margin: 0 1rem 0 0;
+
+    color: var(--text-color);
+    
+    width: 40vw;
+    flex-grow: 0;
+    flex-shrink: 0;
+
+}   .setting .name {
+    font-size: 1.25rem;
+    font-weight: 600;
+
+}   .setting .modifier {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    
+    max-width: 10vw;
+    width: 100%;     /* Fill up to max-width */
+    flex: 0 1 10vw; /* Do not grow, allow shrink, base size 10vw */
+}
+
+#apply {
+    width: 7rem;
+    height: 48px;
+
+    background-color: rgb(31, 109, 255);
+
+    font-weight: 500;
+    color: rgb(255, 255, 255);
+
+    border-radius: 99999px;
+
+    margin: 2rem 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

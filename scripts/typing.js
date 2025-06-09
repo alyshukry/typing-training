@@ -1,9 +1,10 @@
 import {spawnConfetti} from "../lib/confetti.js"
 import {createString, pseudoWords} from "../lib/pseudo-words.js"
 
-pseudoWords.amount = 10
-pseudoWords.punctuation = true
-pseudoWords.capitalise = false
+// Enable/Disbale settings
+pseudoWords.amount = parseInt(localStorage.getItem("word-count-setting")) || 20
+pseudoWords.punctuation = (localStorage.getItem("punctuation-setting") === "true") || false
+pseudoWords.capitalise = (localStorage.getItem("capitalise-setting") === "true") || false
 
 const textDisplay = document.querySelector("#text-display")
 const textInput = document.querySelector("#text-input")
@@ -14,7 +15,7 @@ let typedBefore = 0
 let startedTest = false
 let text = ""
 let textLength
-let wordCount = localStorage.getItem("wordCount") || 20
+let wordCount = pseudoWords.amount
 export function resetText() {
     startedTest = false
     document.addEventListener("input", keyPressed) // Detect key presses

@@ -79,7 +79,7 @@ document.querySelector("#text-display").style.width = "calc(" + document.querySe
 
 welcomeAnimation()
 
-function toggleFingerClasses() {
+function addFingerClasses() {
     const fingerAssignments = {
         'pinky-finger': ['backquote', 'tab', 'capslock', 'shiftleft', 'controlleft', 'digit1', 'keyq', 'keya', 'keyz', 'keyp', 'bracketleft', 'bracketright', 'backslash', 'enter', 'semicolon', 'quote', 'slash', 'shiftright', 'controlright', 'digit0', 'minus', 'equal', 'backspace'],
         'ring-finger': ['digit2', 'keyw', 'keys', 'keyx', 'digit9', 'keyo', 'keyl', 'period'],
@@ -92,7 +92,9 @@ function toggleFingerClasses() {
     for (const [fingerClass, keys] of Object.entries(fingerAssignments)) {
         keys.forEach(key => {
             const element = document.querySelector(`#${key}.key`)
-            if (element) element.classList.toggle(fingerClass)
+            if (element) element.classList.add(fingerClass)
         })
     }
 }
+
+if (localStorage.getItem("colored-keys-setting") === "true") addFingerClasses()

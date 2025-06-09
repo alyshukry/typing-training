@@ -3,6 +3,7 @@
 @import url(text-input.css);
 @import url(stats.css);
 @import url(toolbar.css);
+@import url(settings.css);
 
 :root { /*  Default light mode colors: */
     --background-color: rgb(255, 255, 255);
